@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>Prompt Injection CSV Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 780px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #111;
+    color: #eee;
+  }
+  textarea {
+    width: 100%;
+    height: 120px;
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+  button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background: #28a5ff;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #1b8dd8;
+  }
+  #downloadLink {
+    display: none;
+    margin-top: 20px;
+    font-size: 18px;
+    color: #00ffcc;
+  }
+</style>
+</head>
+
+<body>
+<h1>Prompt Injection CSV Generator</h1>
+<p>攻撃プロンプト5つと防御プロンプトを入力して、提出用CSVを生成します。</p>
+
+<h2>攻撃プロンプト</h2>
+<textarea id="a1" placeholder="attack_1"></textarea>
+<textarea id="a2" placeholder="attack_2"></textarea>
+<textarea id="a3" placeholder="attack_3"></textarea>
+<textarea id="a4" placeholder="attack_4"></textarea>
+<textarea id="a5" placeholder="attack_5"></textarea>
+
+<h2>防御プロンプト</h2>
+<textarea id="def" placeholder="defense_1"></textarea>
+
+<button onclick="generateCSV()">CSV を生成する</button>
+
+<a id="downloadLink">CSV をダウンロードする</a>
+
+<script>
+function validateLen(text) {
+  return text.length <= 2000;
+}
+
+function generateCSV() {
+  const a1 = document.getElementById("a1").value.trim();
+  const a2 = document.getElementById("a2").value.trim();
+  const a3 = document.getElementById("a3").value.trim();
+  const a4 = document.getElementById("a4").value.trim();
+  const a5 = document.getElementById("a5").value.trim();
+  const df = document.getElementById("def").value.trim();
+
+  const fields = [a1,a2,a3,a4,a5,df];
+  const names = ["attack 1","attack 2","attack 3","attack 4","attack 5","defense"];
+
+  for (let i = 0; i < fields.length; i++) {
+    if (fields[i] === "") {
+      alert(`${names[i]} が未入力です`);
+      return;
+    }
+    if (!validateLen(fields[i])) {
+      alert(`${names[i]} が2000文字を超えています`);
+      return;
+    }
+  }
+
+  let csv = "prompt_type,prompt_id,prompt_text\n";
+  csv += `attack,attack_1,"${a1.replace(/"/g,'""')}"\n`;
+  csv += `attack,attack_2,"${a2.replace(/"/g,'""')}"\n`;
+  csv += `attack,attack_3,"${a3.replace(/"/g,'""')}"\n`;
+  csv += `attack,attack_4,"${a4.replace(/"/g,'""')}"\n`;
+  csv += `attack,attack_5,"${a5.replace(/"/g,'""')}"\n`;
+  csv += `defense,defense_1,"${df.replace(/"/g,'""')}"\n`;
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.getElementById("downloadLink");
+  link.href = url;
+  link.download = "submission.csv";
+  link.style.display = "block";
+  link.textContent = "CSV をダウンロードする（クリック）";
+}
+</script>
+
+</body>
+</html>
